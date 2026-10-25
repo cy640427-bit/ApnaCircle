@@ -1,0 +1,9 @@
+{
+  "name": "ApnaCircle",
+  "short_name": "ApnaCircle",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f7f2",
+  "theme_color": "#176b45",
+  "description": "Apne area mein naye logon se milo"
+}

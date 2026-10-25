@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ApnaCircle</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#176b45">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f7f2;color:#20352b;font-family:Arial,sans-serif}
+header{background:#176b45;color:white;padding:24px 18px;border-radius:0 0 24px 24px}
+header h1{margin:0 0 8px}
+main{padding:16px;max-width:600px;margin:auto}
+.card{background:white;padding:16px;margin:12px 0;border-radius:16px;box-shadow:0 3px 12px #0001}
+input,select,button{width:100%;padding:13px;margin:5px 0;border-radius:10px;font-size:16px}
+input,select{border:1px solid #ccd7ce;background:white}
+button{border:0;background:#176b45;color:white;font-weight:bold}
+.filters{display:flex;gap:7px;overflow:auto}
+.filters button{min-width:75px}
+h2{font-size:20px}
+small{color:#65766a}
+</style>
+</head>
+<body>
+<header>
+<h1>🟢 ApnaCircle</h1>
+Scroll kam, milna zyada!<br>Apne logon se, real life mein.
+</header>
+<main>
+<div class="card">
+<h2>➕ Apni activity banao</h2>
+<input id="name" placeholder="Activity ka naam">
+<select id="type">
+<option value="🏏">🏏 Cricket / Sports</option>
+<option value="☕">☕ Chai meetup</option>
+<option value="🚶">🚶 Evening walk</option>
+<option value="🎲">🎲 Games</option>
+</select>
+<input id="date" type="date" aria-label="Date">
+<input id="time" type="time" aria-label="Time">
+<input id="place" placeholder="Public meeting place">
+<button onclick="addActivity()">Create Activity</button>
+</div>
+<h2>📍 Activities</h2>
+<div class="filters">
+<button onclick="filter('all')">Sabhi</button>
+<button onclick="filter('🏏')">Sports</button>
+<button onclick="filter('☕')">Chai</button>
+<button onclick="filter('🚶')">Walk</button>
+<button onclick="filter('🎲')">Games</button>
+</div>
+<div id="list"></div>
+</main>
+<script>
+let events=[];
+try{events=JSON.parse(localStorage.getItem('apna-events')||'[]')}catch(e){}
+let selected='all';
+function save(){localStorage.setItem('apna-events',JSON.stringify(events))}
+function render(){
+let list=document.getElementById('list');
+let filtered=selected==='all'?events:events.filter(e=>e.type===selected);
+list.innerHTML=filtered.length?'':'<p>Abhi koi activity nahi. Pehli activity tum banao!</p>';
+filtered.forEach(e=>{
+let card=document.createElement('div');card.className='card';
+let title=document.createElement('h3');title.textContent=e.type+' '+e.name;
+let details=document.createElement('p');details.textContent='📅 '+(e.date||'')+' · 🕒 '+e.time+' · 📍 '+e.place;
+let small=document.createElement('small');small.textContent=e.joined?'Tum interested ho':'Apne area mein naye logon se milo';
+let btn=document.createElement('button');btn.textContent=e.joined?'✓ Interested':'Join activity';
+btn.onclick=()=>{e.joined=!e.joined;save();render()};
+card.append(title,details,small,btn);list.append(card);
+});
+}
+function addActivity(){
+let name=document.getElementById('name').value.trim();
+let date=document.getElementById('date').value;
+let time=document.getElementById('time').value;
+let place=document.getElementById('place').value.trim();
+if(!name||!date||!time||!place){alert('Naam, date, time aur jagah bharo');return}
+events.unshift({id:Date.now(),name,date,time,place,type:document.getElementById('type').value,joined:false});
+save();render();
+document.getElementById('name').value='';
+document.getElementById('time').value='';
+document.getElementById('place').value='';
+alert('Activity create ho gayi!');
+}
+function filter(type){selected=type;render()}
+render();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+</script>
+</body>
+</html>
